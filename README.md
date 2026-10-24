@@ -63,7 +63,7 @@ omarchy bar set rallevondalle.pomodoro workMinutes 30 --json
 From a terminal or keybinding:
 
 ```bash
-omarchy-shell shell toggle rallevondalle.pomodoro      # open/close the panel
+omarchy-shell shell toggle rallevondalle.pomodoro      # open/close the panel (bind it, e.g. SUPER+CTRL+U)
 omarchy-shell rallevondalle.pomodoro toggle            # start/pause
 omarchy-shell rallevondalle.pomodoro focus deep        # classic | deep | flow
 omarchy-shell rallevondalle.pomodoro takeBreak 10
