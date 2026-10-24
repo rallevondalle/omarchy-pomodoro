@@ -99,6 +99,13 @@ Choices that rest on convenience rather than evidence:
   work it's tempting to "just finish this", so the break is made hard to
   skip rather than easy to ignore.
 
+## Development
+
+Work in a checkout and run `./install.sh`. It copies the plugin into
+`~/.config/omarchy/plugins/rallevondalle.pomodoro`, enables it, places it
+after the clock and restarts the shell. A restart is needed because
+hot-reload keeps the service's IPC and the panel on the old code.
+
 ## License
 
 MIT
