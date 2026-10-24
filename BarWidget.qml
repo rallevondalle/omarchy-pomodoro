@@ -21,7 +21,8 @@ BarWidget {
 
   function syncConfig() {
     if (timer && typeof timer.configure === "function") timer.configure(settings)
-    injectPanel()
+    // Deferred calls can land on a widget torn down by a plugin reload.
+    if (typeof root.injectPanel === "function") injectPanel()
   }
 
   // ---- Panel. Shape contract for shell.summon/hide/toggle routing:

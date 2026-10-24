@@ -55,6 +55,9 @@ Panel {
     if (settingsView) {
       list.push({ kind: "lunch", group: "Frokostpause", key: "", icon: 0xF0A70, label: "Længde",
         hint: "‹  " + lunchMinutes + " min  ›" })
+      var screenOn = !timer || timer.breakScreenEnabled
+      list.push({ kind: "breakscreen", group: "Dyb 50/10", key: "", icon: screenOn ? 0xF0132 : 0xF0131,
+        label: "Pauseskærm", hint: "fylder skærmen i pausen", dim: !screenOn })
       for (i = 0; i < allActions.length; i++) {
         var a = allActions[i]
         var shown = hiddenItems.indexOf(a.id) < 0
@@ -88,6 +91,7 @@ Panel {
     else if (row.kind === "settings") showSettings(true)
     else if (row.kind === "back") showSettings(false)
     else if (row.kind === "visibility") timer.toggleHidden(row.id)
+    else if (row.kind === "breakscreen") timer.toggleBreakScreen()
     else if (row.kind === "lunch") timer.setLunchMinutes(lunchMinutes + 5)
   }
 

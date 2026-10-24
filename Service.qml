@@ -48,6 +48,12 @@ Item {
   // Panel preferences, edited from the panel's settings view.
   property int lunchMinutes: 45
   property var hiddenItems: []
+  property bool breakScreenEnabled: true
+
+  // Tip shown in the break notification and on the break screen.
+  property string breakTip: ""
+  // Deep-mode breaks take over the screen (see BreakScreen.qml).
+  readonly property bool breakScreenActive: breakScreenEnabled && mode === "deep" && onBreak
   property double nowMs: Date.now()
   property bool loaded: false
   property bool dirReady: false
@@ -159,7 +165,8 @@ Item {
       return
     }
     var tips = kind === "long" || ms >= 15 * 60000 ? longTips : shortTips
-    notify(title + " · " + minutes(ms) + " min", tips[(round + new Date().getMinutes()) % tips.length])
+    breakTip = tips[(round + new Date().getMinutes()) % tips.length]
+    notify(title + " · " + minutes(ms) + " min", breakTip)
     save()
   }
 
@@ -246,6 +253,11 @@ Item {
     save()
   }
 
+  function toggleBreakScreen() {
+    breakScreenEnabled = !breakScreenEnabled
+    save()
+  }
+
   function toggleHidden(id) {
     var next = hiddenItems.slice()
     var i = next.indexOf(id)
@@ -298,7 +310,8 @@ Item {
       mode: mode, status: status, phase: phase, round: round,
       deadlineMs: deadlineMs, remainingMs: remainingMs, durationMs: durationMs,
       startedMs: startedMs, elapsedMs: elapsedMs, flowNudged: flowNudged,
-      lunchMinutes: lunchMinutes, hiddenItems: hiddenItems
+      lunchMinutes: lunchMinutes, hiddenItems: hiddenItems,
+      breakScreenEnabled: breakScreenEnabled, breakTip: breakTip
     }) + "\n")
   }
 
@@ -309,6 +322,8 @@ Item {
         if (s.mode === "classic" || s.mode === "deep" || s.mode === "flow") mode = s.mode
         if (Number(s.lunchMinutes) > 0) lunchMinutes = Number(s.lunchMinutes)
         if (Array.isArray(s.hiddenItems)) hiddenItems = s.hiddenItems
+        if (s.breakScreenEnabled === false) breakScreenEnabled = false
+        if (s.breakTip) breakTip = String(s.breakTip)
         if (["running", "paused", "ready"].indexOf(s.status) >= 0) {
           phase = s.phase || "work"
           round = s.round || 1
@@ -327,6 +342,8 @@ Item {
   }
 
   Component.onCompleted: mkdir.running = true
+
+  BreakScreen { timer: root }
 
   Process {
     id: mkdir
@@ -372,6 +389,7 @@ Item {
     function focus(mode: string): void { root.startFocus(mode) }
     function takeBreak(minutes: int): void { root.takeBreak(minutes) }
     function lunch(): void { root.takeBreak(root.lunchMinutes) }
+    function toggleBreakScreen(): void { root.toggleBreakScreen() }
     function setMode(mode: string): void { root.setMode(mode) }
     function mode(): string { return root.mode }
     function status(): string {
