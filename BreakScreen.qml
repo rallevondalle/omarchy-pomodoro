@@ -8,7 +8,7 @@ import qs.Commons
 // break is a real break: L locks the session for leaving the desk, holding
 // Esc for two seconds skips the break. When the break runs out the screen
 // stays up and counts the overtime: Enter/Space starts the next focus, Esc
-// closes it. The background fades from the theme to black over a minute.
+// does too with autoRestart (the default), otherwise it only closes it. The background fades from the theme to black over a minute.
 // The real lock can't host this: a session lock hides every other surface
 // and blanks the display.
 Variants {
@@ -128,16 +128,16 @@ Variants {
         font.letterSpacing: 4
       }
 
-      // Each character rolls in on its own: the old one slides out and fades
-      // while the new one slides in, downwards when counting down and upwards
-      // when counting overtime.
+      // Calm clock: no motion, each character just dissolves slowly into the
+      // next. Seconds are toned down so the minutes carry the screen and the
+      // per-second change doesn't pull at the eye.
       Row {
         id: clock
         anchors.horizontalCenter: parent.horizontalCenter
         readonly property string value: !root.timer ? ""
           : (win.overtime ? root.timer.overtimeText : root.timer.remainingText)
         readonly property int pixelSize: Math.min(220, win.height * 0.22)
-        readonly property int direction: win.overtime ? -1 : 1
+        readonly property int colonIndex: value.indexOf(":")
 
         TextMetrics {
           id: digitMetrics
@@ -154,36 +154,36 @@ Variants {
             id: slot
             required property int index
             readonly property string ch: clock.value.charAt(index)
+            readonly property real tone: index > clock.colonIndex && clock.colonIndex >= 0 ? 0.4
+              : (ch === ":" || ch === "+" ? 0.55 : 1)
             property string shown: ch
             property string previous: ""
             property real t: 1
 
             width: /[0-9]/.test(ch) ? digitMetrics.advanceWidth : glyph.implicitWidth
             height: glyph.implicitHeight
-            clip: true
 
             onChChanged: {
               if (ch === shown) return
               previous = shown
               shown = ch
-              roll.restart()
+              fade.restart()
             }
 
             NumberAnimation {
-              id: roll
+              id: fade
               target: slot
               property: "t"
               from: 0
               to: 1
-              duration: 550
-              easing.type: Easing.OutCubic
+              duration: 900
+              easing.type: Easing.InOutSine
             }
 
             Text {
               id: glyph
-              anchors.horizontalCenter: parent.horizontalCenter
-              y: (1 - slot.t) * -0.45 * height * clock.direction
-              opacity: slot.t
+              anchors.centerIn: parent
+              opacity: slot.tone * slot.t
               text: slot.shown
               color: win.fg
               font.family: win.fontFamily
@@ -192,9 +192,8 @@ Variants {
             }
 
             Text {
-              anchors.horizontalCenter: parent.horizontalCenter
-              y: slot.t * 0.45 * height * clock.direction
-              opacity: 1 - slot.t
+              anchors.centerIn: parent
+              opacity: slot.tone * (1 - slot.t)
               visible: slot.t < 1
               text: slot.previous
               color: win.fg
@@ -233,7 +232,7 @@ Variants {
         }
 
         Text {
-          visible: win.overtime
+          visible: win.overtime && !!root.timer && !root.timer.autoRestart
           text: "Enter  start runde " + (root.timer ? root.timer.round : "")
           color: win.accent
           font.family: win.fontFamily
@@ -241,7 +240,8 @@ Variants {
         }
 
         Text {
-          text: win.overtime ? "Esc  luk pauseskærmen" : "hold Esc  spring pausen over"
+          text: !win.overtime ? "hold Esc  spring pausen over"
+            : (root.timer && root.timer.autoRestart ? "Esc  start runde " + root.timer.round : "Esc  luk pauseskærmen")
           color: win.escProgress > 0 ? win.accent : win.muted
           font.family: win.fontFamily
           font.pixelSize: 15

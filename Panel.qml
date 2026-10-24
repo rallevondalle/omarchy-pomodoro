@@ -64,6 +64,7 @@ Panel {
     settings: "Frokostlængde, pauseskærm og hvilke punkter der vises i menuen.",
     lunchLength: "Længden på frokostpausen. Brug ← → eller klik på pilene.",
     breakscreen: "Fuldskærm med nedtælling i pauserne: kun i Dyb, i alle pauser eller fra. L låser, hold Esc springer over.",
+    autorestart: "Når pausen er slut, tæller pauseskærmen op. Til: Esc starter næste fokus. Fra: Esc lukker bare skærmen.",
     visibility: "Vis eller skjul punktet i menuen. Synlige punkter nummereres 1–9, 0.",
     back: "Tilbage til menuen."
   })
@@ -80,6 +81,10 @@ Panel {
       list.push({ kind: "breakscreen", group: "Pauseskærm", key: "", icon: screenMode === "off" ? 0xF0131 : 0xF0132,
         label: "Vis i pauser", hint: "‹  " + ({ deep: "kun dyb", all: "alle", off: "fra" })[screenMode] + "  ›",
         dim: screenMode === "off", info: info.breakscreen })
+      var restart = !timer || timer.autoRestart
+      list.push({ kind: "autorestart", group: "Pauseskærm", key: "", icon: restart ? 0xF0132 : 0xF0131,
+        label: "Start fokus ved luk", hint: "‹  " + (restart ? "til" : "fra") + "  ›",
+        dim: !restart, info: info.autorestart })
       for (i = 0; i < allActions.length; i++) {
         var a = allActions[i]
         var shown = hiddenItems.indexOf(a.id) < 0
@@ -114,14 +119,20 @@ Panel {
     else if (row.kind === "back") showSettings(false)
     else if (row.kind === "visibility") timer.toggleHidden(row.id)
     else if (row.kind === "breakscreen") timer.cycleBreakScreen(1)
+    else if (row.kind === "autorestart") timer.toggleAutoRestart()
     else if (row.kind === "lunch") timer.setLunchMinutes(lunchMinutes + 5)
   }
 
-  // Lunch length and break-screen mode are steppers: ← / → move them.
+  // Lunch length, break-screen mode and auto-restart are steppers: ← / → move them.
   function step(row, delta) {
     if (!timer || !row) return
     if (row.kind === "lunch") adjustLunch(delta)
     else if (row.kind === "breakscreen") timer.cycleBreakScreen(delta)
+    else if (row.kind === "autorestart") timer.toggleAutoRestart()
+  }
+
+  function isStepper(row) {
+    return !!row && (row.kind === "lunch" || row.kind === "breakscreen" || row.kind === "autorestart")
   }
 
   function adjustLunch(delta) {
@@ -142,7 +153,7 @@ Panel {
 
   function horizontal(dx) {
     var row = rows[selected]
-    if (settingsView && row && (row.kind === "lunch" || row.kind === "breakscreen")) step(row, dx)
+    if (settingsView && isStepper(row)) step(row, dx)
     else move(dx)
   }
 
@@ -342,7 +353,7 @@ Panel {
                 anchors.rightMargin: Style.space(8)
                 anchors.verticalCenter: parent.verticalCenter
                 text: entry.row.hint || ""
-                readonly property bool stepper: entry.row.kind === "lunch" || entry.row.kind === "breakscreen"
+                readonly property bool stepper: root.isStepper(entry.row)
                 color: stepper ? root.foreground : root.muted
                 font.family: root.fontFamily
                 font.pixelSize: stepper ? Style.font.title : Style.font.bodySmall

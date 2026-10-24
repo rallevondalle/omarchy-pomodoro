@@ -53,6 +53,8 @@ Item {
   property var hiddenItems: []
   // When breaks take over the screen: deep | all | off
   property string breakScreenMode: "deep"
+  // Dismissing the held break screen starts the next focus right away.
+  property bool autoRestart: true
 
   // Tip shown in the break notification and on the break screen.
   property string breakTip: ""
@@ -205,17 +207,26 @@ Item {
     nowMs = Date.now()
     if (breakScreenWanted) {
       overtimeSinceMs = deadlineMs
-      notify("Pausen er slut", "Enter starter runde " + round + ", Esc lukker pauseskærmen.")
+      notify("Pausen er slut", autoRestart
+        ? "Esc eller Enter starter runde " + round + "."
+        : "Enter starter runde " + round + ", Esc lukker pauseskærmen.")
     } else {
       notify("Pausen er slut", "Klik på timeren i baren for at starte runde " + round + ".")
     }
     save()
   }
 
-  // Closes the held break screen; the timer keeps waiting in "ready".
+  // Closes the held break screen: starts the next focus with autoRestart,
+  // otherwise the timer keeps waiting in "ready".
   function dismissBreakScreen() {
     if (overtimeSinceMs <= 0) return
+    if (autoRestart) { beginWork(); return }
     overtimeSinceMs = 0
+    save()
+  }
+
+  function toggleAutoRestart() {
+    autoRestart = !autoRestart
     save()
   }
 
@@ -350,7 +361,7 @@ Item {
       startedMs: startedMs, elapsedMs: elapsedMs, flowNudged: flowNudged,
       overtimeSinceMs: overtimeSinceMs,
       lunchMinutes: lunchMinutes, hiddenItems: hiddenItems,
-      breakScreenMode: breakScreenMode, breakTip: breakTip
+      breakScreenMode: breakScreenMode, autoRestart: autoRestart, breakTip: breakTip
     }) + "\n")
   }
 
@@ -363,6 +374,7 @@ Item {
         if (Array.isArray(s.hiddenItems)) hiddenItems = s.hiddenItems
         if (["deep", "all", "off"].indexOf(s.breakScreenMode) >= 0) breakScreenMode = s.breakScreenMode
         else if (s.breakScreenEnabled === false) breakScreenMode = "off"
+        if (typeof s.autoRestart === "boolean") autoRestart = s.autoRestart
         if (s.breakTip) breakTip = String(s.breakTip)
         if (["running", "paused", "ready"].indexOf(s.status) >= 0) {
           phase = s.phase || "work"
@@ -431,6 +443,7 @@ Item {
     function takeBreak(minutes: int): void { root.takeBreak(minutes) }
     function lunch(): void { root.takeBreak(root.lunchMinutes) }
     function dismissBreakScreen(): void { root.dismissBreakScreen() }
+    function toggleAutoRestart(): bool { root.toggleAutoRestart(); return root.autoRestart }
     function cycleBreakScreen(): string { root.cycleBreakScreen(1); return root.breakScreenMode }
     function setMode(mode: string): void { root.setMode(mode) }
     function mode(): string { return root.mode }
