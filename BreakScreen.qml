@@ -8,7 +8,9 @@ import qs.Commons
 // break is a real break: L locks the session for leaving the desk, holding
 // Esc for two seconds skips the break. When the break runs out the screen
 // stays up and counts the overtime: Enter/Space starts the next focus, Esc
-// does too with autoRestart (the default), otherwise it only closes it. The background fades from the theme to black over a minute.
+// does too with autoRestart (the default), otherwise it only closes it. The
+// background fades from the theme to black over ten seconds; the overtime
+// screen is always black.
 // The real lock can't host this: a session lock hides every other surface
 // and blanks the display.
 Variants {
@@ -45,7 +47,7 @@ Variants {
       property: "dim"
       from: 0
       to: 1
-      duration: 60000
+      duration: 10000
       easing.type: Easing.InOutSine
     }
 
@@ -89,8 +91,12 @@ Variants {
       if (visible) {
         escHeldSince = 0
         escProgress = 0
-        dim = 0
-        dimAnim.restart()
+        if (overtime) {
+          dim = 1
+        } else {
+          dim = 0
+          dimAnim.restart()
+        }
         keys.forceActiveFocus()
       } else {
         dimAnim.stop()

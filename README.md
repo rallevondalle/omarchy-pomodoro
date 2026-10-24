@@ -45,7 +45,7 @@ the long break.
 
 **Break screen** (deep mode by default, or all breaks): running breaks take over every monitor with a big
 countdown, the kind of break and a suggestion for what to do. The background
-fades from the theme colour to black over the first minute. It grabs the
+fades from the theme colour to black over ten seconds, and the overtime screen stays black. It grabs the
 keyboard; `L` locks the session if you leave the desk, and holding `Esc` for
 two seconds skips the break. When the break runs out the screen stays up and
 counts the overtime, so a longer break than planned is still a break: `Enter`

@@ -201,12 +201,14 @@ Item {
     beginBreak(kind, phaseMs(kind), atMs, kind === "long" ? "Lang pause" : "Pause")
   }
 
+  // Overtime is set before the status changes, so the break screen stays up
+  // through the switch instead of closing for a frame and fading in again.
   function breakOver() {
+    if (breakScreenWanted) overtimeSinceMs = deadlineMs
     status = "ready"
     phase = "work"
     nowMs = Date.now()
     if (breakScreenWanted) {
-      overtimeSinceMs = deadlineMs
       notify("Pausen er slut", autoRestart
         ? "Esc eller Enter starter runde " + round + "."
         : "Enter starter runde " + round + ", Esc lukker pauseskærmen.")
