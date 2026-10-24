@@ -28,7 +28,7 @@ dimmed icon when stopped.
 | Scroll       | ±1 minute on the running countdown        |
 
 The panel drops down under the icon. Every action has a number key
-(`1`–`9`, `0`), so `right click → 3` starts a deep-work session. Arrows /
+(`1`–`9`, `0`), so `right click → 3` starts a deep-work session. Hovering or selecting a row shows a short explanation at the bottom of the panel. Arrows /
 `j` `k` + Enter work too, `s` opens settings and Esc goes back or closes.
 
 **Focus modes**

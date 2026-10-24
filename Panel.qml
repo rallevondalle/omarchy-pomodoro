@@ -47,6 +47,24 @@ Panel {
     { id: "stop", group: "-", icon: 0xF04DB, label: "Stop", hint: "nulstil", needsActive: true, run: function() { timer.stop() } }
   ]
 
+  readonly property var info: ({
+    toggle: "Starter, pauser eller fortsætter den aktuelle fase. Samme som venstreklik på timeren.",
+    classic: "25 min fokus og 5 min pause. Efter 4 runder en lang pause på 15 min. Passer til de fleste opgaver.",
+    deep: "50 min fokus og 10 min pause, 30 min pause efter 2 runder. Til krævende arbejde, hvor 25 min er for kort.",
+    flow: "Tæller op. Arbejd, til fokus slipper, og tag så pausen (9 eller midterklik). Pausen bliver ⅕ af fokustiden, 2–30 min.",
+    b5: "Kort pause nu: rejs dig, kig langt væk og drik vand. Telefonen genoplader dårligt.",
+    b10: "Pause nu. En afbrudt fokusrunde tæller ikke med mod den lange pause.",
+    b15: "Lang pause nu. Længere pauser hjælper mere efter krævende arbejde.",
+    lunch: "Frokostpause. Længden ændres under Indstillinger.",
+    skip: "Afslut den aktuelle fase: fra fokus til pause, eller fra pause til fokus.",
+    stop: "Stop timeren og nulstil runderne.",
+    settings: "Frokostlængde, pauseskærm og hvilke punkter der vises i menuen.",
+    lunchLength: "Længden på frokostpausen. Brug ← → eller klik på pilene.",
+    breakscreen: "Fuldskærm med nedtælling i pauserne: kun i Dyb, i alle pauser eller fra. L låser, hold Esc springer over.",
+    visibility: "Vis eller skjul punktet i menuen. Synlige punkter nummereres 1–9, 0.",
+    back: "Tilbage til menuen."
+  })
+
   function keyFor(i) { return String((i + 1) % 10) }
 
   readonly property var rows: {
@@ -54,19 +72,19 @@ Panel {
     var i
     if (settingsView) {
       list.push({ kind: "lunch", group: "Frokostpause", key: "", icon: 0xF0A70, label: "Længde",
-        hint: "‹  " + lunchMinutes + " min  ›" })
+        hint: "‹  " + lunchMinutes + " min  ›", info: info.lunchLength })
       var screenMode = timer ? timer.breakScreenMode : "deep"
       list.push({ kind: "breakscreen", group: "Pauseskærm", key: "", icon: screenMode === "off" ? 0xF0131 : 0xF0132,
         label: "Vis i pauser", hint: "‹  " + ({ deep: "kun dyb", all: "alle", off: "fra" })[screenMode] + "  ›",
-        dim: screenMode === "off" })
+        dim: screenMode === "off", info: info.breakscreen })
       for (i = 0; i < allActions.length; i++) {
         var a = allActions[i]
         var shown = hiddenItems.indexOf(a.id) < 0
         list.push({ kind: "visibility", id: a.id, group: "Vis i menuen", key: keyFor(i),
           icon: shown ? 0xF0132 : 0xF0131, label: a.menuLabel || a.label,
-          hint: a.group === "-" ? "" : a.group.toLowerCase(), current: false, dim: !shown })
+          hint: a.group === "-" ? "" : a.group.toLowerCase(), current: false, dim: !shown, info: info.visibility })
       }
-      list.push({ kind: "back", group: "-", key: "esc", icon: 0xF004D, label: "Tilbage", hint: "" })
+      list.push({ kind: "back", group: "-", key: "esc", icon: 0xF004D, label: "Tilbage", hint: "", info: info.back })
       return list
     }
     var n = 0
@@ -74,10 +92,10 @@ Panel {
       var b = allActions[i]
       if (hiddenItems.indexOf(b.id) >= 0) continue
       list.push({ kind: "action", action: b, group: b.group, key: keyFor(n++), icon: b.icon, label: b.label,
-        hint: b.hint, current: !!b.mode && !!timer && timer.mode === b.mode,
+        hint: b.hint, info: info[b.id] || "", current: !!b.mode && !!timer && timer.mode === b.mode,
         disabled: !timer || (b.needsActive && timer.stopped) })
     }
-    list.push({ kind: "settings", group: "-settings", key: "s", icon: 0xF0493, label: "Indstillinger", hint: "" })
+    list.push({ kind: "settings", group: "-settings", key: "s", icon: 0xF0493, label: "Indstillinger", hint: "", info: info.settings })
     return list
   }
 
@@ -344,6 +362,36 @@ Panel {
                 }
               }
             }
+          }
+        }
+
+        // ---- Explanation of the selected/hovered row. Fixed height so the
+        //      panel doesn't jump as the text changes.
+        Item {
+          width: parent.width
+          height: Style.space(62)
+
+          PanelSeparator {
+            anchors.top: parent.top
+            anchors.topMargin: Style.space(4)
+            foreground: root.foreground
+          }
+
+          Text {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.topMargin: Style.space(12)
+            anchors.leftMargin: Style.space(8)
+            anchors.rightMargin: Style.space(8)
+            text: root.rows[root.selected] ? root.rows[root.selected].info || "" : ""
+            wrapMode: Text.WordWrap
+            maximumLineCount: 3
+            elide: Text.ElideRight
+            color: root.muted
+            font.family: root.fontFamily
+            font.pixelSize: Style.font.bodySmall
+            lineHeight: 1.15
           }
         }
       }
