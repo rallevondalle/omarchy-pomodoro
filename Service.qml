@@ -76,6 +76,7 @@ Item {
     var m = Math.floor(s / 60)
     return (m < 10 ? "0" : "") + m + ":" + (s % 60 < 10 ? "0" : "") + (s % 60)
   }
+  readonly property int flowBreakMinutes: minutes(flowBreakMs(flowElapsedMs))
   readonly property string phaseLabel: ({
     work: "Fokus", short: "Pause", long: "Lang pause", manual: "Pause"
   })[phase] || "Fokus"
@@ -199,6 +200,13 @@ Item {
     var now = Date.now()
     if (stopped) { round = 1; beginWork(); return }
     if (ready) { beginWork(); return }
+    // Flow has no use for pausing: a click switches between the count-up
+    // focus and its computed break.
+    if (mode === "flow") {
+      if (phase === "work") finishWork(now)
+      else beginWork()
+      return
+    }
     if (running) {
       if (countingUp) elapsedMs += now - startedMs
       else remainingMs = Math.max(0, deadlineMs - now)

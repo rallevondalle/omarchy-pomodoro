@@ -24,10 +24,13 @@ Panel {
 
   function glyph(code) { return String.fromCodePoint(code) }
 
+  readonly property bool flowActive: !!timer && timer.mode === "flow" && !timer.stopped && !timer.ready
   readonly property string toggleLabel: !timer || timer.stopped ? "Start fokus"
     : timer.ready ? "Start runde " + timer.round
+    : flowActive ? (timer.phase === "work" ? "Tag pause · " + timer.flowBreakMinutes + " min" : "Tilbage til fokus")
     : timer.paused ? "Fortsæt" : "Sæt på pause"
-  readonly property int toggleIcon: !timer || timer.stopped || timer.ready || timer.paused ? 0xF040A : 0xF03E4
+  readonly property int toggleIcon: flowActive ? (timer.phase === "work" ? 0xF0176 : 0xF13AB)
+    : !timer || timer.stopped || timer.ready || timer.paused ? 0xF040A : 0xF03E4
   readonly property int lunchMinutes: timer ? timer.lunchMinutes : 45
   readonly property var hiddenItems: timer ? timer.hiddenItems : []
 
@@ -48,10 +51,10 @@ Panel {
   ]
 
   readonly property var info: ({
-    toggle: "Starter, pauser eller fortsætter den aktuelle fase. Samme som venstreklik på timeren.",
+    toggle: "Starter, pauser eller fortsætter den aktuelle fase. I Flow skifter den mellem fokus og pause. Samme som venstreklik på timeren.",
     classic: "25 min fokus og 5 min pause. Efter 4 runder en lang pause på 15 min. Passer til de fleste opgaver.",
     deep: "50 min fokus og 10 min pause, 30 min pause efter 2 runder. Til krævende arbejde, hvor 25 min er for kort.",
-    flow: "Tæller op. Arbejd, til fokus slipper, og tag så pausen (9 eller midterklik). Pausen bliver ⅕ af fokustiden, 2–30 min.",
+    flow: "Tæller op. Arbejd, til fokus slipper, og klik så på timeren for pause. Pausen bliver ⅕ af fokustiden, 2–30 min.",
     b5: "Kort pause nu: rejs dig, kig langt væk og drik vand. Telefonen genoplader dårligt.",
     b10: "Pause nu. En afbrudt fokusrunde tæller ikke med mod den lange pause.",
     b15: "Lang pause nu. Længere pauser hjælper mere efter krævende arbejde.",

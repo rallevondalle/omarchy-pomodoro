@@ -22,7 +22,7 @@ dimmed icon when stopped.
 
 | In the bar   | Action                                    |
 | ------------ | ----------------------------------------- |
-| Left click   | Start / pause / resume                    |
+| Left click   | Start / pause / resume (flow: focus ⇄ break) |
 | Right click  | Open the panel                            |
 | Middle click | Skip to the next phase                    |
 | Scroll       | ±1 minute on the running countdown        |
@@ -35,9 +35,9 @@ The panel drops down under the icon. Every action has a number key
 
 - **Klassisk 25/5**: 25 min focus, 5 min break, 15 min break after 4 rounds.
 - **Dyb 50/10**: 50 min focus, 10 min break, 30 min break after 2 rounds.
-- **Flow**: counts up. Take the break when your focus drops (skip / middle
-  click); the break is ⅕ of the focus time (2–30 min). There's a nudge after
-  90 min.
+- **Flow**: counts up. When your focus drops, click the timer to take the
+  break, which is ⅕ of the focus time (2–30 min) and counts down. Click again
+  to go back to focus. There's no pausing in flow, and a nudge after 90 min.
 
 **Breaks** of 5, 10 or 15 min, or lunch (45 min by default), can be started
 at any time. A break inserted mid-focus doesn't count that round towards

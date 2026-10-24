@@ -77,9 +77,12 @@ BarWidget {
     verticalPadding: 8.75
     tooltipText: {
       if (root.opened) return ""
-      var help = "\nVenstre: start/pause · Højre: menu · Midt: spring over · Scroll: ±1 min"
       if (!root.timer) return "Pomodoro"
       var t = root.timer
+      var flow = t.mode === "flow" && !t.stopped && !t.ready
+      var help = flow
+        ? "\nVenstre: " + (t.phase === "work" ? "tag pause (" + t.flowBreakMinutes + " min)" : "tilbage til fokus") + " · Højre: menu"
+        : "\nVenstre: start/pause · Højre: menu · Midt: spring over · Scroll: ±1 min"
       if (t.stopped) return "Pomodoro · " + t.modeLabel + " — klik for at starte" + help
       if (t.ready) return "Pausen er slut — klik for at starte runde " + t.round + help
       return t.phaseLabel + " · " + t.modeLabel + " · runde " + t.round

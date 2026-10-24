@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "rallevondalle.pomodoro",
   "name": "Pomodoro",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "author": "Rasmus Kjærbo",
   "license": "MIT",
   "description": "Pomodoro / focus timer with research-based breaks for the Omarchy bar.",
