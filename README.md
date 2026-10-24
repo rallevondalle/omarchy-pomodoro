@@ -43,14 +43,14 @@ The panel drops down under the icon. Every action has a number key
 at any time. A break inserted mid-focus doesn't count that round towards
 the long break.
 
-**Break screen** (deep mode): breaks take over every monitor with a big
+**Break screen** (deep mode by default, or all breaks): running breaks take over every monitor with a big
 countdown, the kind of break and a suggestion for what to do. It grabs the
 keyboard and disappears when the break ends. `L` locks the session if you
 leave the desk; holding `Esc` for two seconds skips the break. It's a
 separate overlay rather than the lock screen, because a session lock hides
 every other surface and blanks the display, so it can't show a countdown.
 
-**Settings** (`s` in the panel): lunch length, the break screen on/off, and
+**Settings** (`s` in the panel): lunch length, when to show the break screen (deep only / all breaks / off), and
 which actions to show in the menu. Hidden actions are dropped and the rest are renumbered.
 
 The classic mode's lengths can also be set in `shell.json`:
@@ -68,7 +68,7 @@ omarchy-shell rallevondalle.pomodoro toggle            # start/pause
 omarchy-shell rallevondalle.pomodoro focus deep        # classic | deep | flow
 omarchy-shell rallevondalle.pomodoro takeBreak 10
 omarchy-shell rallevondalle.pomodoro lunch
-omarchy-shell rallevondalle.pomodoro toggleBreakScreen
+omarchy-shell rallevondalle.pomodoro cycleBreakScreen   # deep → all → off
 omarchy-shell rallevondalle.pomodoro skip | stop | status
 ```
 

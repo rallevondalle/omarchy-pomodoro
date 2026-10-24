@@ -55,9 +55,10 @@ Panel {
     if (settingsView) {
       list.push({ kind: "lunch", group: "Frokostpause", key: "", icon: 0xF0A70, label: "Længde",
         hint: "‹  " + lunchMinutes + " min  ›" })
-      var screenOn = !timer || timer.breakScreenEnabled
-      list.push({ kind: "breakscreen", group: "Dyb 50/10", key: "", icon: screenOn ? 0xF0132 : 0xF0131,
-        label: "Pauseskærm", hint: "fylder skærmen i pausen", dim: !screenOn })
+      var screenMode = timer ? timer.breakScreenMode : "deep"
+      list.push({ kind: "breakscreen", group: "Pauseskærm", key: "", icon: screenMode === "off" ? 0xF0131 : 0xF0132,
+        label: "Vis i pauser", hint: "‹  " + ({ deep: "kun dyb", all: "alle", off: "fra" })[screenMode] + "  ›",
+        dim: screenMode === "off" })
       for (i = 0; i < allActions.length; i++) {
         var a = allActions[i]
         var shown = hiddenItems.indexOf(a.id) < 0
@@ -91,7 +92,7 @@ Panel {
     else if (row.kind === "settings") showSettings(true)
     else if (row.kind === "back") showSettings(false)
     else if (row.kind === "visibility") timer.toggleHidden(row.id)
-    else if (row.kind === "breakscreen") timer.toggleBreakScreen()
+    else if (row.kind === "breakscreen") timer.cycleBreakScreen()
     else if (row.kind === "lunch") timer.setLunchMinutes(lunchMinutes + 5)
   }
 
@@ -113,6 +114,7 @@ Panel {
 
   function horizontal(dx) {
     if (settingsView && rows[selected] && rows[selected].kind === "lunch") adjustLunch(dx)
+    else if (settingsView && rows[selected] && rows[selected].kind === "breakscreen") timer.cycleBreakScreen()
     else move(dx)
   }
 
@@ -312,9 +314,10 @@ Panel {
                 anchors.rightMargin: Style.space(8)
                 anchors.verticalCenter: parent.verticalCenter
                 text: entry.row.hint || ""
-                color: entry.row.kind === "lunch" ? root.foreground : root.muted
+                readonly property bool stepper: entry.row.kind === "lunch" || entry.row.kind === "breakscreen"
+                color: stepper ? root.foreground : root.muted
                 font.family: root.fontFamily
-                font.pixelSize: entry.row.kind === "lunch" ? Style.font.title : Style.font.bodySmall
+                font.pixelSize: stepper ? Style.font.title : Style.font.bodySmall
               }
 
               MouseArea {
@@ -326,6 +329,7 @@ Panel {
                 onClicked: function(mouse) {
                   // Lunch row: left half shortens, right half lengthens.
                   if (entry.row.kind === "lunch") root.adjustLunch(mouse.x < width / 2 ? -1 : 1)
+                  else if (entry.row.kind === "breakscreen") root.timer.cycleBreakScreen()
                   else root.activate(entry.index)
                 }
                 onWheel: function(wheel) {

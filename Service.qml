@@ -48,12 +48,14 @@ Item {
   // Panel preferences, edited from the panel's settings view.
   property int lunchMinutes: 45
   property var hiddenItems: []
-  property bool breakScreenEnabled: true
+  // When breaks take over the screen: deep | all | off
+  property string breakScreenMode: "deep"
 
   // Tip shown in the break notification and on the break screen.
   property string breakTip: ""
-  // Deep-mode breaks take over the screen (see BreakScreen.qml).
-  readonly property bool breakScreenActive: breakScreenEnabled && mode === "deep" && onBreak
+  // Running breaks take over the screen (see BreakScreen.qml).
+  readonly property bool breakScreenActive: onBreak && running
+    && (breakScreenMode === "all" || (breakScreenMode === "deep" && mode === "deep"))
   property double nowMs: Date.now()
   property bool loaded: false
   property bool dirReady: false
@@ -253,8 +255,9 @@ Item {
     save()
   }
 
-  function toggleBreakScreen() {
-    breakScreenEnabled = !breakScreenEnabled
+  function cycleBreakScreen() {
+    var order = ["deep", "all", "off"]
+    breakScreenMode = order[(order.indexOf(breakScreenMode) + 1) % order.length]
     save()
   }
 
@@ -311,7 +314,7 @@ Item {
       deadlineMs: deadlineMs, remainingMs: remainingMs, durationMs: durationMs,
       startedMs: startedMs, elapsedMs: elapsedMs, flowNudged: flowNudged,
       lunchMinutes: lunchMinutes, hiddenItems: hiddenItems,
-      breakScreenEnabled: breakScreenEnabled, breakTip: breakTip
+      breakScreenMode: breakScreenMode, breakTip: breakTip
     }) + "\n")
   }
 
@@ -322,7 +325,8 @@ Item {
         if (s.mode === "classic" || s.mode === "deep" || s.mode === "flow") mode = s.mode
         if (Number(s.lunchMinutes) > 0) lunchMinutes = Number(s.lunchMinutes)
         if (Array.isArray(s.hiddenItems)) hiddenItems = s.hiddenItems
-        if (s.breakScreenEnabled === false) breakScreenEnabled = false
+        if (["deep", "all", "off"].indexOf(s.breakScreenMode) >= 0) breakScreenMode = s.breakScreenMode
+        else if (s.breakScreenEnabled === false) breakScreenMode = "off"
         if (s.breakTip) breakTip = String(s.breakTip)
         if (["running", "paused", "ready"].indexOf(s.status) >= 0) {
           phase = s.phase || "work"
@@ -389,7 +393,7 @@ Item {
     function focus(mode: string): void { root.startFocus(mode) }
     function takeBreak(minutes: int): void { root.takeBreak(minutes) }
     function lunch(): void { root.takeBreak(root.lunchMinutes) }
-    function toggleBreakScreen(): void { root.toggleBreakScreen() }
+    function cycleBreakScreen(): string { root.cycleBreakScreen(); return root.breakScreenMode }
     function setMode(mode: string): void { root.setMode(mode) }
     function mode(): string { return root.mode }
     function status(): string {
