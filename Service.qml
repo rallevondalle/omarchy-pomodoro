@@ -255,9 +255,10 @@ Item {
     save()
   }
 
-  function cycleBreakScreen() {
+  function cycleBreakScreen(delta) {
     var order = ["deep", "all", "off"]
-    breakScreenMode = order[(order.indexOf(breakScreenMode) + 1) % order.length]
+    var n = order.length
+    breakScreenMode = order[((order.indexOf(breakScreenMode) + (delta < 0 ? -1 : 1)) % n + n) % n]
     save()
   }
 
@@ -393,7 +394,7 @@ Item {
     function focus(mode: string): void { root.startFocus(mode) }
     function takeBreak(minutes: int): void { root.takeBreak(minutes) }
     function lunch(): void { root.takeBreak(root.lunchMinutes) }
-    function cycleBreakScreen(): string { root.cycleBreakScreen(); return root.breakScreenMode }
+    function cycleBreakScreen(): string { root.cycleBreakScreen(1); return root.breakScreenMode }
     function setMode(mode: string): void { root.setMode(mode) }
     function mode(): string { return root.mode }
     function status(): string {

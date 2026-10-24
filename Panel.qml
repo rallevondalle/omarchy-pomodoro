@@ -92,8 +92,15 @@ Panel {
     else if (row.kind === "settings") showSettings(true)
     else if (row.kind === "back") showSettings(false)
     else if (row.kind === "visibility") timer.toggleHidden(row.id)
-    else if (row.kind === "breakscreen") timer.cycleBreakScreen()
+    else if (row.kind === "breakscreen") timer.cycleBreakScreen(1)
     else if (row.kind === "lunch") timer.setLunchMinutes(lunchMinutes + 5)
+  }
+
+  // Lunch length and break-screen mode are steppers: ← / → move them.
+  function step(row, delta) {
+    if (!timer || !row) return
+    if (row.kind === "lunch") adjustLunch(delta)
+    else if (row.kind === "breakscreen") timer.cycleBreakScreen(delta)
   }
 
   function adjustLunch(delta) {
@@ -113,8 +120,8 @@ Panel {
   }
 
   function horizontal(dx) {
-    if (settingsView && rows[selected] && rows[selected].kind === "lunch") adjustLunch(dx)
-    else if (settingsView && rows[selected] && rows[selected].kind === "breakscreen") timer.cycleBreakScreen()
+    var row = rows[selected]
+    if (settingsView && row && (row.kind === "lunch" || row.kind === "breakscreen")) step(row, dx)
     else move(dx)
   }
 
@@ -327,13 +334,13 @@ Panel {
                 cursorShape: entry.row.disabled ? Qt.ArrowCursor : Qt.PointingHandCursor
                 onEntered: if (!entry.row.disabled) root.selected = entry.index
                 onClicked: function(mouse) {
-                  // Lunch row: left half shortens, right half lengthens.
-                  if (entry.row.kind === "lunch") root.adjustLunch(mouse.x < width / 2 ? -1 : 1)
-                  else if (entry.row.kind === "breakscreen") root.timer.cycleBreakScreen()
+                  // Steppers: left of the value's middle (‹) steps down, right of it (›) up.
+                  if (hintLabel.stepper)
+                    root.step(entry.row, mouse.x < hintLabel.x + hintLabel.width / 2 ? -1 : 1)
                   else root.activate(entry.index)
                 }
                 onWheel: function(wheel) {
-                  if (entry.row.kind === "lunch") root.adjustLunch(wheel.angleDelta.y > 0 ? 1 : -1)
+                  if (hintLabel.stepper) root.step(entry.row, wheel.angleDelta.y > 0 ? 1 : -1)
                 }
               }
             }
