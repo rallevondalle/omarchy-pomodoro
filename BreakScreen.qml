@@ -128,81 +128,14 @@ Variants {
         font.letterSpacing: 4
       }
 
-      // Calm clock: no motion, each character just dissolves slowly into the
-      // next. Seconds are toned down so the minutes carry the screen and the
-      // per-second change doesn't pull at the eye.
-      Row {
-        id: clock
+      Text {
         anchors.horizontalCenter: parent.horizontalCenter
-        readonly property string value: !root.timer ? ""
+        text: !root.timer ? ""
           : (win.overtime ? root.timer.overtimeText : root.timer.remainingText)
-        readonly property int pixelSize: Math.min(220, win.height * 0.22)
-        readonly property int colonIndex: value.indexOf(":")
-
-        TextMetrics {
-          id: digitMetrics
-          font.family: win.fontFamily
-          font.pixelSize: clock.pixelSize
-          font.bold: true
-          text: "0"
-        }
-
-        Repeater {
-          model: clock.value.length
-
-          Item {
-            id: slot
-            required property int index
-            readonly property string ch: clock.value.charAt(index)
-            readonly property real tone: index > clock.colonIndex && clock.colonIndex >= 0 ? 0.4
-              : (ch === ":" || ch === "+" ? 0.55 : 1)
-            property string shown: ch
-            property string previous: ""
-            property real t: 1
-
-            width: /[0-9]/.test(ch) ? digitMetrics.advanceWidth : glyph.implicitWidth
-            height: glyph.implicitHeight
-
-            onChChanged: {
-              if (ch === shown) return
-              previous = shown
-              shown = ch
-              fade.restart()
-            }
-
-            NumberAnimation {
-              id: fade
-              target: slot
-              property: "t"
-              from: 0
-              to: 1
-              duration: 900
-              easing.type: Easing.InOutSine
-            }
-
-            Text {
-              id: glyph
-              anchors.centerIn: parent
-              opacity: slot.tone * slot.t
-              text: slot.shown
-              color: win.fg
-              font.family: win.fontFamily
-              font.pixelSize: clock.pixelSize
-              font.bold: true
-            }
-
-            Text {
-              anchors.centerIn: parent
-              opacity: slot.tone * (1 - slot.t)
-              visible: slot.t < 1
-              text: slot.previous
-              color: win.fg
-              font.family: win.fontFamily
-              font.pixelSize: clock.pixelSize
-              font.bold: true
-            }
-          }
-        }
+        color: win.fg
+        font.family: win.fontFamily
+        font.pixelSize: Math.min(220, win.height * 0.22)
+        font.bold: true
       }
 
       Text {

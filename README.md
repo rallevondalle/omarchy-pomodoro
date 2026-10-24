@@ -51,9 +51,7 @@ two seconds skips the break. When the break runs out the screen stays up and
 counts the overtime, so a longer break than planned is still a break: `Enter`
 or `Space` starts the next focus, and so does `Esc` while "start focus on
 close" is on (the default); with it off, `Esc` only closes the screen and
-leaves the timer waiting in the bar. The clock is deliberately calm: no
-motion, digits dissolve slowly into the next, and the seconds are toned down.
-It's a
+leaves the timer waiting in the bar. It's a
 separate overlay rather than the lock screen, because a session lock hides
 every other surface and blanks the display, so it can't show a countdown.
 
