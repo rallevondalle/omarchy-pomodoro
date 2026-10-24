@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "rassta.pomodoro",
+  "name": "Pomodoro",
+  "version": "0.2.0",
+  "author": "Rasmus Kjærbo",
+  "license": "MIT",
+  "description": "Pomodoro / focus timer with research-based breaks for the Omarchy bar.",
+  "kinds": ["service", "bar-widget"],
+  "entryPoints": {
+    "service": "Service.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Pomodoro",
+    "description": "Pomodoro timer: left = start/pause, right = panel, middle = skip, scroll = ±1 min",
+    "category": "Time",
+    "allowMultiple": false,
+    "defaultSection": "center",
+    "defaults": {
+      "workMinutes": 25,
+      "shortBreakMinutes": 5,
+      "longBreakMinutes": 15,
+      "roundsPerLongBreak": 4
+    },
+    "schema": [
+      { "key": "workMinutes", "type": "integer", "label": "Work (minutes)", "min": 1, "max": 180, "step": 1, "defaultValue": 25 },
+      { "key": "shortBreakMinutes", "type": "integer", "label": "Short break (minutes)", "min": 1, "max": 60, "step": 1, "defaultValue": 5 },
+      { "key": "longBreakMinutes", "type": "integer", "label": "Long break (minutes)", "min": 1, "max": 120, "step": 1, "defaultValue": 15 },
+      { "key": "roundsPerLongBreak", "type": "integer", "label": "Work rounds before long break", "min": 1, "max": 12, "step": 1, "defaultValue": 4 }
+    ]
+  }
+}
