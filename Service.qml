@@ -16,7 +16,9 @@ import Quickshell.Io
 // - Longer breaks restore more after demanding work (Albulescu et al. 2022),
 //   hence the deep mode and the long breaks.
 // - A break that ends while you're away shouldn't start the next focus
-//   without you, so a finished break waits in "ready" for a click.
+//   without you, so a finished break waits in "ready" for a click. With the
+//   break screen on, the screen stays up and counts the overtime until you
+//   dismiss it, so a longer break than planned is still a break.
 Item {
   id: root
 
@@ -44,6 +46,7 @@ Item {
   property double startedMs: 0      // flow: start of the current running stretch
   property double elapsedMs: 0      // flow: focus time banked before that stretch
   property bool flowNudged: false
+  property double overtimeSinceMs: 0  // > 0: break over, break screen held up
 
   // Panel preferences, edited from the panel's settings view.
   property int lunchMinutes: 45
@@ -53,9 +56,17 @@ Item {
 
   // Tip shown in the break notification and on the break screen.
   property string breakTip: ""
-  // Running breaks take over the screen (see BreakScreen.qml).
-  readonly property bool breakScreenActive: onBreak && running
-    && (breakScreenMode === "all" || (breakScreenMode === "deep" && mode === "deep"))
+  // Running breaks take over the screen (see BreakScreen.qml), and the screen
+  // stays up counting overtime after the break until it is dismissed.
+  readonly property bool breakScreenWanted: breakScreenMode === "all"
+    || (breakScreenMode === "deep" && mode === "deep")
+  readonly property bool overtime: ready && overtimeSinceMs > 0
+  readonly property bool breakScreenActive: (onBreak && running && breakScreenWanted) || overtime
+  readonly property string overtimeText: {
+    var s = Math.max(0, Math.floor((nowMs - overtimeSinceMs) / 1000))
+    var m = Math.floor(s / 60)
+    return "+" + (m < 10 ? "0" : "") + m + ":" + (s % 60 < 10 ? "0" : "") + (s % 60)
+  }
   property double nowMs: Date.now()
   property bool loaded: false
   property bool dirReady: false
@@ -136,6 +147,7 @@ Item {
 
   function beginWork() {
     var now = Date.now()
+    overtimeSinceMs = 0
     phase = "work"
     status = "running"
     if (mode === "flow") {
@@ -158,6 +170,7 @@ Item {
   // Starts a break that began at `fromMs` (the work deadline, so time asleep
   // or away counts as break). If it already ran out, go straight to ready.
   function beginBreak(kind, ms, fromMs, title) {
+    overtimeSinceMs = 0
     phase = kind
     status = "running"
     durationMs = ms
@@ -190,7 +203,19 @@ Item {
     status = "ready"
     phase = "work"
     nowMs = Date.now()
-    notify("Pausen er slut", "Klik på timeren i baren for at starte runde " + round + ".")
+    if (breakScreenWanted) {
+      overtimeSinceMs = deadlineMs
+      notify("Pausen er slut", "Enter starter runde " + round + ", Esc lukker pauseskærmen.")
+    } else {
+      notify("Pausen er slut", "Klik på timeren i baren for at starte runde " + round + ".")
+    }
+    save()
+  }
+
+  // Closes the held break screen; the timer keeps waiting in "ready".
+  function dismissBreakScreen() {
+    if (overtimeSinceMs <= 0) return
+    overtimeSinceMs = 0
     save()
   }
 
@@ -244,6 +269,7 @@ Item {
   }
 
   function stop() {
+    overtimeSinceMs = 0
     status = "stopped"
     phase = "work"
     round = 1
@@ -322,6 +348,7 @@ Item {
       mode: mode, status: status, phase: phase, round: round,
       deadlineMs: deadlineMs, remainingMs: remainingMs, durationMs: durationMs,
       startedMs: startedMs, elapsedMs: elapsedMs, flowNudged: flowNudged,
+      overtimeSinceMs: overtimeSinceMs,
       lunchMinutes: lunchMinutes, hiddenItems: hiddenItems,
       breakScreenMode: breakScreenMode, breakTip: breakTip
     }) + "\n")
@@ -346,6 +373,7 @@ Item {
           startedMs = Number(s.startedMs) || 0
           elapsedMs = Number(s.elapsedMs) || 0
           flowNudged = !!s.flowNudged
+          overtimeSinceMs = s.status === "ready" ? (Number(s.overtimeSinceMs) || 0) : 0
           status = s.status
         }
       }
@@ -389,7 +417,7 @@ Item {
   Timer {
     interval: 250
     repeat: true
-    running: root.loaded && root.running
+    running: root.loaded && (root.running || root.overtime)
     onTriggered: root.tick()
   }
 
@@ -402,6 +430,7 @@ Item {
     function focus(mode: string): void { root.startFocus(mode) }
     function takeBreak(minutes: int): void { root.takeBreak(minutes) }
     function lunch(): void { root.takeBreak(root.lunchMinutes) }
+    function dismissBreakScreen(): void { root.dismissBreakScreen() }
     function cycleBreakScreen(): string { root.cycleBreakScreen(1); return root.breakScreenMode }
     function setMode(mode: string): void { root.setMode(mode) }
     function mode(): string { return root.mode }
