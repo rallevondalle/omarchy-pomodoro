@@ -7,7 +7,7 @@ import qs.Ui
 // which actions are shown. Arrows/jk + Enter also work; Esc goes back/closes.
 Panel {
   id: root
-  moduleName: "rassta.pomodoro"
+  moduleName: "rallevondalle.pomodoro"
   manageIpc: false
 
   property var anchorItem: null

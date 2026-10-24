@@ -25,7 +25,7 @@ Item {
 
   readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME")
     || ((Quickshell.env("HOME") || "") + "/.local/state")) + "/omarchy"
-  readonly property string statePath: stateDir + "/rassta-pomodoro.json"
+  readonly property string statePath: stateDir + "/rallevondalle-pomodoro.json"
 
   // Classic mode comes from the bar entry settings; the others are fixed.
   property var config: ({ work: 25, shortBreak: 5, longBreak: 15, rounds: 4 })
@@ -364,7 +364,7 @@ Item {
   }
 
   IpcHandler {
-    target: "rassta.pomodoro"
+    target: "rallevondalle.pomodoro"
 
     function toggle(): void { root.toggle() }
     function stop(): void { root.stop() }

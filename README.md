@@ -12,7 +12,7 @@ work breaks.
 
 ```bash
 omarchy plugin add https://github.com/rallevondalle/omarchy-pomodoro.git --enable --yes
-omarchy bar move rassta.pomodoro --after omarchy.clock
+omarchy bar move rallevondalle.pomodoro --after omarchy.clock
 ```
 
 ## Use
@@ -49,23 +49,23 @@ the menu. Hidden actions are dropped and the rest are renumbered.
 The classic mode's lengths can also be set in `shell.json`:
 
 ```bash
-omarchy bar set rassta.pomodoro workMinutes 30 --json
+omarchy bar set rallevondalle.pomodoro workMinutes 30 --json
 # also: shortBreakMinutes, longBreakMinutes, roundsPerLongBreak
 ```
 
 From a terminal or keybinding:
 
 ```bash
-omarchy-shell shell toggle rassta.pomodoro      # open/close the panel
-omarchy-shell rassta.pomodoro toggle            # start/pause
-omarchy-shell rassta.pomodoro focus deep        # classic | deep | flow
-omarchy-shell rassta.pomodoro takeBreak 10
-omarchy-shell rassta.pomodoro lunch
-omarchy-shell rassta.pomodoro skip | stop | status
+omarchy-shell shell toggle rallevondalle.pomodoro      # open/close the panel
+omarchy-shell rallevondalle.pomodoro toggle            # start/pause
+omarchy-shell rallevondalle.pomodoro focus deep        # classic | deep | flow
+omarchy-shell rallevondalle.pomodoro takeBreak 10
+omarchy-shell rallevondalle.pomodoro lunch
+omarchy-shell rallevondalle.pomodoro skip | stop | status
 ```
 
 The timer works from deadlines and saves its state in
-`~/.local/state/omarchy/rassta-pomodoro.json`, so it survives shell restarts
+`~/.local/state/omarchy/rallevondalle-pomodoro.json`, so it survives shell restarts
 and suspend. Time spent asleep counts as break time.
 
 ## Why it works like this

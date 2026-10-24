@@ -7,7 +7,7 @@ import qs.Ui
 // left = start/pause/resume · right = panel · middle = skip · scroll = ±1 min
 BarWidget {
   id: root
-  moduleName: "rassta.pomodoro"
+  moduleName: "rallevondalle.pomodoro"
 
   readonly property var timer: bar && bar.shell ? bar.shell.serviceFor(moduleName) : null
   readonly property bool stopped: !timer || timer.stopped
