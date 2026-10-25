@@ -4,7 +4,7 @@
   "name": "Pomodoro",
   "version": "0.4.0",
   "author": "Rasmus Kjærbo",
-  "license": "MIT",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "description": "Pomodoro / focus timer with research-based breaks for the Omarchy bar.",
   "kinds": ["service", "bar-widget"],
   "entryPoints": {

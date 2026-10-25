@@ -113,4 +113,8 @@ hot-reload keeps the service's IPC and the panel on the old code.
 
 ## License
 
-MIT
+[PolyForm Noncommercial 1.0.0](LICENSE). The source is open to read, use and
+change for personal and other noncommercial use. Using the code, or anything built
+from it, for commercial purposes needs a separate licence: ask me.
+
+A native macOS version is at [macos-pomodoro](https://github.com/rallevondalle/macos-pomodoro).
